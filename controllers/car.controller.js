@@ -1,6 +1,7 @@
 const { db } = require("../config/db");
 
 const carsCollection = () => db().collection("cars");
+const { ObjectId } = require("mongodb");
 
 const addCar = async (req, res) => {
   try {
@@ -86,8 +87,38 @@ const getHomeCars = async (req, res) => {
   }
 };
 
+const getSingleCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const car = await carsCollection().findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!car) {
+      return res.status(404).json({
+        success: false,
+        message: "Car not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: car,
+    });
+  } catch (error) {
+    console.error("Get Single Car Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
 module.exports = {
   addCar,
   getAllCars,
   getHomeCars,
+  getSingleCar,
 };
