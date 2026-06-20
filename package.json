@@ -1,0 +1,28 @@
+{
+  "name": "drivefleet-server",
+  "version": "1.0.0",
+  "description": "Backend API for the DriveFleet car rental platform.",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "drivefleet",
+    "express",
+    "mongodb",
+    "jwt",
+    "jose"
+  ],
+  "author": "Mohammed Rakib",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jose": "^6.2.3",
+    "mongodb": "^7.3.0"
+  }
+}
