@@ -157,10 +157,40 @@ const updateCar = async (req, res) => {
   }
 };
 
+const deleteCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await carsCollection().deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Car not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Car deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete Car Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
 module.exports = {
   addCar,
   getAllCars,
   getHomeCars,
   getSingleCar,
   updateCar,
+  deleteCar,
 };
