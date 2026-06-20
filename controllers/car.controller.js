@@ -116,9 +116,51 @@ const getSingleCar = async (req, res) => {
   }
 };
 
+const updateCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedData = req.body;
+
+    const result = await carsCollection().updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          dailyRentPrice: updatedData.dailyRentPrice,
+          description: updatedData.description,
+          availability: updatedData.availability,
+          image: updatedData.image,
+          carType: updatedData.carType,
+          pickupLocation: updatedData.pickupLocation,
+        },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Car not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Car updated successfully.",
+    });
+  } catch (error) {
+    console.error("Update Car Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
 module.exports = {
   addCar,
   getAllCars,
   getHomeCars,
   getSingleCar,
+  updateCar,
 };
