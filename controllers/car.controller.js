@@ -41,6 +41,53 @@ const addCar = async (req, res) => {
   }
 };
 
+const getAllCars = async (req, res) => {
+  try {
+    const cars = await carsCollection()
+      .find()
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.status(200).json({
+      success: true,
+      total: cars.length,
+      data: cars,
+    });
+  } catch (error) {
+    console.error("Get Cars Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
+const getHomeCars = async (req, res) => {
+  try {
+    const cars = await carsCollection()
+      .find({ availability: "Available" })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .toArray();
+
+    res.status(200).json({
+      success: true,
+      total: cars.length,
+      data: cars,
+    });
+  } catch (error) {
+    console.error("Home Cars Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
 module.exports = {
   addCar,
+  getAllCars,
+  getHomeCars,
 };
