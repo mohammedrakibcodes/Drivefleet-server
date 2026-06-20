@@ -1,11 +1,16 @@
 const { db } = require("../config/db");
+const { ObjectId } = require("mongodb");
 
 const carsCollection = () => db().collection("cars");
-const { ObjectId } = require("mongodb");
 
 const addCar = async (req, res) => {
   try {
-    const car = req.body;
+    const car = {
+      ...req.body,
+      ownerEmail: req.user.email,
+      bookingCount: 0,
+      createdAt: new Date(),
+    };
 
     if (
       !car.carName ||
@@ -21,9 +26,6 @@ const addCar = async (req, res) => {
         message: "All fields are required.",
       });
     }
-
-    car.bookingCount = 0;
-    car.createdAt = new Date();
 
     const result = await carsCollection().insertOne(car);
 
@@ -91,6 +93,13 @@ const getSingleCar = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Car ID.",
+      });
+    }
+
     const car = await carsCollection().findOne({
       _id: new ObjectId(id),
     });
@@ -120,18 +129,32 @@ const updateCar = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updatedData = req.body;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Car ID.",
+      });
+    }
+
+    const {
+      dailyRentPrice,
+      description,
+      availability,
+      image,
+      carType,
+      pickupLocation,
+    } = req.body;
 
     const result = await carsCollection().updateOne(
       { _id: new ObjectId(id) },
       {
         $set: {
-          dailyRentPrice: updatedData.dailyRentPrice,
-          description: updatedData.description,
-          availability: updatedData.availability,
-          image: updatedData.image,
-          carType: updatedData.carType,
-          pickupLocation: updatedData.pickupLocation,
+          dailyRentPrice,
+          description,
+          availability,
+          image,
+          carType,
+          pickupLocation,
         },
       },
     );
@@ -161,6 +184,13 @@ const deleteCar = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Car ID.",
+      });
+    }
+
     const result = await carsCollection().deleteOne({
       _id: new ObjectId(id),
     });
@@ -186,6 +216,30 @@ const deleteCar = async (req, res) => {
   }
 };
 
+const getMyCars = async (req, res) => {
+  try {
+    const cars = await carsCollection()
+      .find({
+        ownerEmail: req.user.email,
+      })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.status(200).json({
+      success: true,
+      total: cars.length,
+      data: cars,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
+  }
+};
+
 module.exports = {
   addCar,
   getAllCars,
@@ -193,4 +247,5 @@ module.exports = {
   getSingleCar,
   updateCar,
   deleteCar,
+  getMyCars,
 };
