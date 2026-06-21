@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post("/bookings", verifyToken, bookCar);
 
-router.get("/bookings", verifyToken, getMyBookings);
+router.get("/my-bookings", verifyToken, getMyBookings);
 
 router.delete("/bookings/:id", verifyToken, cancelBooking);
 

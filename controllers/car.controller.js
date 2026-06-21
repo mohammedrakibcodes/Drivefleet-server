@@ -12,20 +12,28 @@ const addCar = async (req, res) => {
       createdAt: new Date(),
     };
 
+    const isValidImage =
+      typeof car.image === "string" &&
+      (car.image.startsWith("http://") ||
+        car.image.startsWith("https://") ||
+        car.image.startsWith("/"));
+
     if (
       !car.carName ||
       !car.dailyRentPrice ||
       !car.carType ||
-      !car.image ||
+      !isValidImage ||
       !car.seatCapacity ||
       !car.pickupLocation ||
       !car.description
     ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required.",
+        message: "Invalid or missing fields.",
       });
     }
+
+    car.image = isValidImage ? car.image : null;
 
     const result = await carsCollection().insertOne(car);
 
@@ -145,6 +153,19 @@ const updateCar = async (req, res) => {
       pickupLocation,
     } = req.body;
 
+    const isValidImage =
+      typeof image === "string" &&
+      (image.startsWith("http://") ||
+        image.startsWith("https://") ||
+        image.startsWith("/"));
+
+    if (image && !isValidImage) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid image URL.",
+      });
+    }
+
     const result = await carsCollection().updateOne(
       { _id: new ObjectId(id) },
       {
@@ -152,7 +173,7 @@ const updateCar = async (req, res) => {
           dailyRentPrice,
           description,
           availability,
-          image,
+          image: isValidImage ? image : undefined,
           carType,
           pickupLocation,
         },

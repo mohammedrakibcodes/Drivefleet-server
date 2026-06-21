@@ -11,6 +11,10 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 let database;
 
 const connectDB = async () => {
+  if (database) {
+    return database;
+  }
+
   try {
     await client.connect();
 
@@ -18,9 +22,12 @@ const connectDB = async () => {
 
     await database.command({ ping: 1 });
 
-    console.log("MongoDB Connected");
+    console.log("✅ MongoDB Connected");
+
+    return database;
   } catch (error) {
-    console.log(error);
+    console.error("MongoDB Connection Error:", error);
+    throw error;
   }
 };
 
